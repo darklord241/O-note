@@ -13,9 +13,15 @@ export async function getNote(site, questionId) {
 
 export async function saveNote(site, questionId, noteData) {
     const existing = await getNote(site, questionId);
+    const labelChanged = noteData.label !== undefined && noteData.label !== existing?.label?.text;
+
     const record = {
         site,
         questionId,
+        label: {
+            text: noteData.label ?? existing?.label?.text ?? "",
+            updatedAt: labelChanged ? Date.now() : (existing?.label?.updatedAt ?? null)
+        },
         content: noteData.content,
         updatedAt: Date.now(),
         createdAt: noteData.createdAt ?? existing?.createdAt ?? Date.now()

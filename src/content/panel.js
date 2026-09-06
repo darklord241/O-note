@@ -157,6 +157,10 @@ export function renderPanel({ site, questionId, title, note, onSave, onDelete}) 
             </div>
         </div>
         <div class="dsanotes-body">
+            <div class="label-wrapper">
+                <textarea class="label-text" placeholder="label"></textarea>    
+                <span class="label-timestamp"></span>
+            </div>
             <textarea class="dsanotes-textarea" placeholder="write your notes"></textarea>
             <div class="preview" style="display:none;"></div>
             <div class="btns">
@@ -168,6 +172,11 @@ export function renderPanel({ site, questionId, title, note, onSave, onDelete}) 
 
     const textarea = container.querySelector(".dsanotes-textarea");
     textarea.value = note?.content ?? "";
+
+    const labelTextarea = container.querySelector(".label-text");
+    const labelTimestamp = container.querySelector(".label-timestamp");
+    labelTimestamp.textContent = note?.label?.updatedAt ? new Date(note.label.updatedAt).toLocaleDateString() : "";
+    labelTextarea.value = note?.label?.text ?? "";
 
     const existing = root.querySelector(".dsanotes-panel");
     // console.log("existing panel found?", !!existing);
@@ -197,7 +206,8 @@ export function renderPanel({ site, questionId, title, note, onSave, onDelete}) 
         status.textContent = "Saving ...";
         onSave( questionId, {
             content: textarea.value,
-            createdAt: note?.createdAt
+            createdAt: note?.createdAt,
+            label: labelTextarea.value
         });
         panelElements.lastSavedContent = textarea.value;
     }
@@ -249,6 +259,12 @@ export function renderPanel({ site, questionId, title, note, onSave, onDelete}) 
 export function updatePanel(savedRecord) {
     if(!panelElements) return;
     panelElements.status.textContent = "Saved";
+
+    const labelTimestamp = panelElements.container.querySelector(".label-timestamp");
+    if(labelTimestamp && savedRecord?.label?.updatedAt) {
+        labelTimestamp.textContent = new Date(savedRecord.label.updatedAt).toLocaleDateString();
+    }
+
     setTimeout(() => {
         if(panelElements) panelElements.status.textContent = "";
     }, 1500);
