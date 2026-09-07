@@ -6,6 +6,15 @@ db.version(1).stores({
     notes: "[site+questionId], site, questionId, updatedAt"
 });
 
+db.version(2).stores({
+    notes: "[site+questionId], site, questionId, updatedAt, *labels"
+}).upgrade(tx => {
+    return tx.table('notes').toCollection().modify(note => {
+        note.labels = note.label?.text ? [note.label.text] : [];
+        delete note.label;
+    })
+});
+
 export async function getNote(site, questionId) {
     const record =  await db.notes.get({ site, questionId });
     return record ?? null;
@@ -13,15 +22,11 @@ export async function getNote(site, questionId) {
 
 export async function saveNote(site, questionId, noteData) {
     const existing = await getNote(site, questionId);
-    const labelChanged = noteData.label !== undefined && noteData.label !== existing?.label?.text;
-
+    
     const record = {
         site,
         questionId,
-        label: {
-            text: noteData.label ?? existing?.label?.text ?? "",
-            updatedAt: labelChanged ? Date.now() : (existing?.label?.updatedAt ?? null)
-        },
+        labels: noteData.labels ?? existing?.labels ?? [],
         content: noteData.content,
         updatedAt: Date.now(),
         createdAt: noteData.createdAt ?? existing?.createdAt ?? Date.now()
