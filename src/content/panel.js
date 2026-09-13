@@ -270,6 +270,20 @@ export function renderPanel({ site, questionId, title, note, onSave, onDelete}) 
         handleInput();
     });
 
+    // repositioning of cursor through mouse 
+    textarea.addEventListener("click",() => {
+        if(previewTimer) clearTimeout(previewTimer);
+        previewTimer = setTimeout(showPreviewMode,2000);
+    });
+
+    // repositioning of cursor throught keyboard keys 
+    textarea.addEventListener("keyup",(e) => {
+        if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","Home","End"].includes(e.key)) {
+            if(previewTimer) clearTimeout(previewTimer);
+            previewTimer = setTimeout(showPreviewMode,2000);
+        }   
+    })
+
     previewDiv.addEventListener("click",() => {
         showEditMode();
         focusCursor();
