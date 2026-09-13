@@ -175,10 +175,10 @@
   gap: 6px;
 }
 
-.label-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
+.label-chip {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .label-chip {

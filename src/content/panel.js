@@ -275,7 +275,7 @@ export function renderPanel({ site, questionId, title, note, onSave, onDelete}) 
         if(e.key === "Enter" || e.key === ",") {
             e.preventDefault();
             const value = labelInput.value.trim().replace(",","");
-            if(value && !currentLabels.includes(value)) {
+            if(value && !currentLabels.some(l => l.toLowerCase() === value.toLowerCase)) {
                 currentLabels.push(value);
                 renderChips();
                 labelInput.value = "";
