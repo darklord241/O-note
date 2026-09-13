@@ -166,6 +166,18 @@
   gap: 8px; 
 }
 
+.toggle-input-btn {
+  background: none;
+  border: 1px solid #3d3b64;
+  color: #e5e5f0;
+  border-radius: 4px;
+  width: 20px;
+  height: 20px;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
 .label-wrapper {
   position: relative;
   flex-shrink: 0;
@@ -175,14 +187,21 @@
   gap: 6px;
 }
 
-.label-chip {
-  max-width: 100%;
-  overflow-wrap: anywhere;
-  word-break: break-word;
+.label-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.label-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
 .label-chip {
-  display: flex;
+  display: inline-flex;   /* was: flex */
   align-items: center;
   gap: 4px;
   background: rgba(20, 184, 166, 0.15);
@@ -193,7 +212,10 @@
   font-size: 12px;
   font-family: sans-serif;
   line-height: 1.4;
-}
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+} 
 
 .label-chip-remove {
   background: none;

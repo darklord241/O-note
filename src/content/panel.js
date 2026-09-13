@@ -158,7 +158,10 @@ export function renderPanel({ site, questionId, title, note, onSave, onDelete}) 
         </div>
         <div class="dsanotes-body">
             <div class="label-wrapper">
-                <div class="label-chips"></div>
+                <div class="label-row">
+                    <div class="label-chips"></div>
+                    <button class="toggle-input-btn" type="button">+</button>
+                </div>
                 <input type="text" class="label-input" placeholder="add label" autocomplete="off" />
             </div>
             <textarea class="dsanotes-textarea" placeholder="write your notes"></textarea>
@@ -174,9 +177,17 @@ export function renderPanel({ site, questionId, title, note, onSave, onDelete}) 
     textarea.value = note?.content ?? "";
 
     let currentLabels = [...(note?.labels ?? [])];
+    let labelInputVisible = currentLabels.length === 0;
 
+    const toggleInputBtn = container.querySelector(".toggle-input-btn");
     const chipContainer = container.querySelector(".label-chips");
     const labelInput = container.querySelector(".label-input");
+
+    function updateLabelInputVisibility() {
+        labelInput.style.display = labelInputVisible ? "block" : "none";
+        toggleInputBtn.textContent = labelInputVisible ? "-" : "+";
+    }
+    updateLabelInputVisibility();
 
     function renderChips() {
         chipContainer.innerHTML = "";
@@ -285,6 +296,12 @@ export function renderPanel({ site, questionId, title, note, onSave, onDelete}) 
                 labelInput.value = "";
             }
         }
+    });
+
+    toggleInputBtn.addEventListener("click", () => {
+        labelInputVisible = !labelInputVisible;
+        updateLabelInputVisibility();
+        if(labelInputVisible) labelInput.focus();
     });
 
     if(note?.content) {
