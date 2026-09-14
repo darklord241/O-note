@@ -40,3 +40,5 @@
 ### technical things 
 - `<fieldset>` is a native HTML element that visually and semantically groups a set of related form controls — browsers render it with a default border box around its contents.
 - `<legend>` is the caption for that box, rendered breaking the top border
+- `label:has(input:disabled)` uses the :has() relational pseudo-class to gray out the entire label row (text included, not just the checkbox) when its child input is disabled — this is what makes the "faded, not-currently-accessible" visual
+- the manifest.json got one addition `options_ui` which has a interesting field `open_in_tab` to decide whether to open this page on new tab or in extensions itself
