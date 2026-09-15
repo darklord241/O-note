@@ -42,3 +42,15 @@
 - `<legend>` is the caption for that box, rendered breaking the top border
 - `label:has(input:disabled)` uses the :has() relational pseudo-class to gray out the entire label row (text included, not just the checkbox) when its child input is disabled — this is what makes the "faded, not-currently-accessible" visual
 - the manifest.json got one addition `options_ui` which has a interesting field `open_in_tab` to decide whether to open this page on new tab or in extensions itself
+- `{ ...DEFAULT_SETTINGS, ...stored.settings }` is an object spread merge: it builds a new object starting with every key from DEFAULT_SETTINGS, then overwrites with every key present in stored.settings.
+- found a new event for which you can add a listener - `change`
+
+### options.js
+- Every element querySelectorAll returns for a checkbox is an HTMLInputElement — a real DOM object, not something you defined. It comes with a fixed set of built-in properties, and the three you're using are:
+
+    - `.checked` — boolean, reflects whether the checkbox is ticked. Reading it tells you current UI state; setting it (input.checked = true) programmatically ticks/unticks the box. This is how init() syncs the checkbox to match stored settings on page load, and how the change listener later reads what the user just clicked.
+    - `.disabled` — boolean, native browser behavior: when true, the browser prevents the user from interacting with it (can't click, can't tab to it, grays it out per your CSS :disabled rule) — this isn't something JS "implements," it's built-in HTML form-control behavior that any `<input>`, `<button>`, `<select>`, etc. has for free.
+    - `.dataset` — this is the browser's built-in interface for reading data-* attributes. Any attribute you write as `data-path="labelInput.enabled"` in HTML becomes accessible in JS as input.dataset.path (the browser automatically strips the data- prefix and camelCases multi-word attributes — data-depends-on becomes input.dataset.dependsOn). This is the only link between a given DOM element and your settings object — the string value itself, which your code then manually parses (.split(".")) to know where to look.
+
+- `applyDependencies()` takes care of the dependencies using the `data-depends-on` attribute in the `<input>` element and according disabled the sub options if the parent options is disabled 
+- 
