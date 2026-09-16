@@ -1,4 +1,4 @@
-import { getSettings, updateSetting } from "../settings/settings.js";
+import { getSettings, updateSettings } from "../settings/settings.js";
 
 async function init() {
     const settings = await getSettings();
@@ -23,7 +23,7 @@ async function init() {
 
     inputs.forEach(input => {
         input.addEventListener("change", () => {
-            updateSetting(input.dataset.path, input.checked);
+            updateSettings(input.dataset.path, input.checked);
             applyDependencies(); // re-check disabled states after every change
         });
     });

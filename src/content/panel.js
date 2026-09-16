@@ -141,14 +141,8 @@ export function toggleMode() {
     }
 }
 
-export function renderPanel({ site, questionId, title, note, onSave, onDelete}) {
-    // console.log("renderPanel called with", questionId, title);
-    const root = ensureShadowHost();
-    // console.log("root reference", root, "children count", root.children.length);
-    const container = document.createElement("div");
-    container.className = `dsanotes-panel${isCollapsed ? " dsanotes-collapsed" : ""}`;
-    
-    container.innerHTML = `
+function buildPanelHtml(questionId) {
+    return `
         <div class="dsanotes-header">
             <span class="dsanotes-title">${slugToTitle(questionId)}</span>
             <div class="dsanotes-header-controls">
@@ -172,10 +166,49 @@ export function renderPanel({ site, questionId, title, note, onSave, onDelete}) 
             </div>
         </div>
     `;
+}
 
+function markdownPreview(container, note) {
     const textarea = container.querySelector(".dsanotes-textarea");
-    textarea.value = note?.content ?? "";
+    const previewDiv = container.querySelector(".preview");
 
+    if(previewTimer) {
+        clearTimeout(previewTimer);
+        previewTimer = null;
+    }
+    
+    textarea.addEventListener("input",() => {
+        showEditMode();
+        if(previewTimer) clearTimeout(previewTimer);
+        previewTimer = setTimeout(showPreviewMode, 2000);
+    });
+
+    // repositioning of cursor through mouse 
+    textarea.addEventListener("click",() => {
+        if(previewTimer) clearTimeout(previewTimer);
+        previewTimer = setTimeout(showPreviewMode,2000);
+    });
+
+    // repositioning of cursor throught keyboard keys 
+    textarea.addEventListener("keyup",(e) => {
+        if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","Home","End"].includes(e.key)) {
+            if(previewTimer) clearTimeout(previewTimer);
+            previewTimer = setTimeout(showPreviewMode,2000);
+        }   
+    })
+
+    previewDiv.addEventListener("click",() => {
+        showEditMode();
+        focusCursor();
+    });
+
+    if(note?.content) {
+        showPreviewMode();
+    }
+}
+
+function labelFeature(container, note, doSave) {
+        
     let currentLabels = [...(note?.labels ?? [])];
     let labelInputVisible = currentLabels.length === 0;
 
@@ -211,96 +244,11 @@ export function renderPanel({ site, questionId, title, note, onSave, onDelete}) 
     }
     renderChips();
 
-    const existing = root.querySelector(".dsanotes-panel");
-    // console.log("existing panel found?", !!existing);
-    if(existing) existing.remove();
-    root.appendChild(container);
-    // console.log("new panel appended");
-
-    if(autosaveTimer) {
-        clearTimeout(autosaveTimer);
-        autosaveTimer= null;
-    }
-    if(previewTimer) {
-        clearTimeout(previewTimer);
-        previewTimer = null;
-    }
-
-    const previewDiv = container.querySelector(".preview");
-    const header = container.querySelector(".dsanotes-header");
-    const collapseBtn = container.querySelector(".collapse-btn");
-    const saveBtn = container.querySelector(".save-btn");
-    const status = container.querySelector(".status");
-    const deleteBtn = container.querySelector(".dlt-btn");
-
-    makeDraggable(container, header);
-
-    function doSave() {
-        status.textContent = "Saving ...";
-        onSave( questionId, {
-            content: textarea.value,
-            createdAt: note?.createdAt,
-            labels: currentLabels
-        });
-        panelElements.lastSavedContent = textarea.value;
-    }
-
-    function delNote() {
-        status.textContent = "Deleting ...";
-        onDelete(questionId);
-    }
-
-    function handleInput() {
-        const isUpdated = textarea.value !== panelElements.lastSavedContent;
-        status.textContent = isUpdated ? "Unsaved" : "";
-
-        if(autosaveTimer) clearTimeout(autosaveTimer);
-        if(previewTimer) clearTimeout(previewTimer);
-
-        if(isUpdated) {
-            autosaveTimer = setTimeout(doSave, 1000);
-        }
-        previewTimer = setTimeout(showPreviewMode, 2000);
-    }
-
-    collapseBtn.addEventListener("click", togglePanel);
-
-    textarea.addEventListener("input",() => {
-        showEditMode();
-        handleInput();
-    });
-
-    // repositioning of cursor through mouse 
-    textarea.addEventListener("click",() => {
-        if(previewTimer) clearTimeout(previewTimer);
-        previewTimer = setTimeout(showPreviewMode,2000);
-    });
-
-    // repositioning of cursor throught keyboard keys 
-    textarea.addEventListener("keyup",(e) => {
-        if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","Home","End"].includes(e.key)) {
-            if(previewTimer) clearTimeout(previewTimer);
-            previewTimer = setTimeout(showPreviewMode,2000);
-        }   
-    })
-
-    previewDiv.addEventListener("click",() => {
-        showEditMode();
-        focusCursor();
-    });
-
-    deleteBtn.addEventListener("click", delNote);
-
-    saveBtn.addEventListener("click", () => {
-        if(autosaveTimer) clearTimeout(autosaveTimer);
-        doSave();
-    });
-
     labelInput.addEventListener("keydown", (e) => {
         if(e.key === "Enter" || e.key === ",") {
             e.preventDefault();
             const value = labelInput.value.trim().replace(",","");
-            if(value && !currentLabels.some(l => l.toLowerCase() === value.toLowerCase)) {
+            if(value && !currentLabels.some(l => l.toLowerCase() === value.toLowerCase())) {
                 currentLabels.push(value);
                 renderChips();
                 labelInput.value = "";
@@ -318,11 +266,81 @@ export function renderPanel({ site, questionId, title, note, onSave, onDelete}) 
         if(labelInputVisible) labelInput.focus();
     });
 
-    if(note?.content) {
-        showPreviewMode();
+    return {
+        getLabels: () => currentLabels
+    };
+}
+
+export function renderPanel({ site, questionId, title, note, onSave, onDelete}) {
+    // console.log("renderPanel called with", questionId, title);
+    const root = ensureShadowHost();
+    // console.log("root reference", root, "children count", root.children.length);
+    const container = document.createElement("div");
+    container.className = `dsanotes-panel${isCollapsed ? " dsanotes-collapsed" : ""}`;
+    
+    container.innerHTML = buildPanelHtml(questionId);
+
+    const textarea = container.querySelector(".dsanotes-textarea");
+    textarea.value = note?.content ?? "";
+
+    const existing = root.querySelector(".dsanotes-panel");
+    // console.log("existing panel found?", !!existing);
+    if(existing) existing.remove();
+    root.appendChild(container);
+    // console.log("new panel appended");
+
+    const header = container.querySelector(".dsanotes-header");
+    const collapseBtn = container.querySelector(".collapse-btn");
+    const saveBtn = container.querySelector(".save-btn");
+    const status = container.querySelector(".status");
+    const deleteBtn = container.querySelector(".dlt-btn");
+
+    makeDraggable(container, header);
+
+    function doSave() {
+        status.textContent = "Saving ...";
+        onSave( questionId, {
+            content: textarea.value,
+            createdAt: note?.createdAt,
+            labels: labelController.getLabels()
+        });
+        panelElements.lastSavedContent = textarea.value;
     }
 
+    function delNote() {
+        status.textContent = "Deleting ...";
+        onDelete(questionId);
+    }
+
+    if(autosaveTimer) {
+        clearTimeout(autosaveTimer);
+        autosaveTimer= null;
+    }
+
+    textarea.addEventListener("input", () => {
+        const isUpdated = textarea.value !== panelElements.lastSavedContent;
+        status.textContent = isUpdated ? "Unsaved" : "";
+
+        if(autosaveTimer) clearTimeout(autosaveTimer);
+        if(isUpdated) {
+            autosaveTimer = setTimeout(doSave, 1000);
+        }
+    });        
+
+    collapseBtn.addEventListener("click", togglePanel);
+
+    deleteBtn.addEventListener("click", delNote);
+
+    saveBtn.addEventListener("click", () => {
+        if(autosaveTimer) clearTimeout(autosaveTimer);
+        doSave();
+    });
+
+    const labelController = labelFeature(container,note,doSave);
+
     panelElements = { container, textarea, status, lastSavedContent: note?.content ?? "" };
+
+    markdownPreview(container,note);
 }
 
 export function updatePanel(savedRecord) {
