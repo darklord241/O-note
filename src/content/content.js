@@ -2,10 +2,17 @@ import { leetcodeAdapter } from "../adapters/leetcode-adapter.js";
 import { codeforcesAdapter } from "../adapters/codeforces-adapter.js";
 import { renderPanel, updatePanel, removePanel, togglePanel, clearPanel, toggleMode } from "./panel.js";
 import { MESSAGE_TYPES } from "../shared/constants.js";
+import { getSettings } from "../settings/settings.js";
 // import { migrateOldNotes } from "../storage/migrate.js";
 
 let currentQuestionId = null;
 let isProcessing = false;
+let settings = null;
+
+async function init() {
+    settings = await getSettings();
+    handleQuestionChange().catch((err) => console.error("handleQuestionChange failed:",err));
+}
 
 function getNote(site, questionId) {
     return chrome.runtime.sendMessage({
@@ -34,8 +41,10 @@ function deleNote(site,questionId) {
 
 function getActiveAdapter() {
     const hostname = window.location.hostname;
-    if(hostname.includes("codeforces.com")) return codeforcesAdapter;
-    if(hostname.includes("leetcode.com")) return leetcodeAdapter;
+    
+    if(hostname.includes("codeforces.com") && settings.sites.codeforces) return codeforcesAdapter;
+    if(hostname.includes("leetcode.com") && settings.sites.leetcode) return leetcodeAdapter;
+    
     return null;
 }
 
@@ -90,7 +99,7 @@ chrome.runtime.onMessage.addListener((message) => {
     }
     else if(message.type === MESSAGE_TYPES.TOGGLE_PANEL) {
         // console.log("toggle received in content.js ");
-        togglePanel();
+        if(settings?.togglePanelShortcut) togglePanel();
     }
     else if(message.type === MESSAGE_TYPES.TOGGLE_MODE) {
         // console.log("toggle mode received in content.js");
@@ -108,4 +117,4 @@ chrome.runtime.onMessage.addListener((message) => {
 //   handleQuestionChange().catch((err) => console.error("handleQuestionChange failed:", err));
 // }
 
-handleQuestionChange().catch((err) => console.error("handleQuestionChange failed:",err));
+init();
