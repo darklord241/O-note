@@ -7,10 +7,7 @@
     "permissions": ["storage","webNavigation"],
     "host_permissions": ["https://leetcode.com/*","https://codeforces.com/*"],
     
-    "options_ui": {
-        "page": "src/options/options.html",
-        "open_in_tab": true
-    },
+    "options_page": "src/options/options.html",
 
     "background": {
         "service_worker": "src/background/background.js",

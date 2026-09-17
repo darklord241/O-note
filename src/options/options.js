@@ -2,6 +2,7 @@ import { getSettings, updateSettings } from "../settings/settings.js";
 
 async function init() {
     const settings = await getSettings();
+    console.log("settings loaded:", settings);
     const inputs = document.querySelectorAll("[data-path]");
 
     inputs.forEach(input => {

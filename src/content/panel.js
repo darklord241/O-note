@@ -1,5 +1,6 @@
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
+import { getSettings } from '../settings/settings.js';
 
 marked.setOptions({
     // line breaks are properly converted to <br> 
@@ -15,6 +16,8 @@ let autosaveTimer = null;
 let previewTimer = null;
 let isCollapsed = true;
 
+// helper functions 
+// ------------------------------------------------------------------------------------
 function slugToTitle(slug) {
   return slug
     .split("-")
@@ -140,8 +143,20 @@ export function toggleMode() {
         showPreviewMode();
     }
 }
+// -------------------------------------------------------------------------------------
 
-function buildPanelHtml(questionId) {
+// feature functions
+// -------------------------------------------------------------------------------------
+function buildPanelHtml(questionId,settings) {
+    const labelSection = settings.labelInput.enabled 
+        ? `<div class="label-wrapper">
+                <div class="label-row">
+                    <div class="label-chips"></div>
+                    ${settings.labelInput.toggleButton ? `<button class="toggle-input-btn" type="button">+</button>` : ``}
+                </div>
+                <input type="text" class="label-input" placeholder="add label" autocomplete="off" />
+            </div>` : ``;
+
     return `
         <div class="dsanotes-header">
             <span class="dsanotes-title">${slugToTitle(questionId)}</span>
@@ -151,13 +166,7 @@ function buildPanelHtml(questionId) {
             </div>
         </div>
         <div class="dsanotes-body">
-            <div class="label-wrapper">
-                <div class="label-row">
-                    <div class="label-chips"></div>
-                    <button class="toggle-input-btn" type="button">+</button>
-                </div>
-                <input type="text" class="label-input" placeholder="add label" autocomplete="off" />
-            </div>
+            ${labelSection}
             <textarea class="dsanotes-textarea" placeholder="write your notes"></textarea>
             <div class="preview" style="display:none;"></div>
             <div class="btns">
@@ -168,7 +177,8 @@ function buildPanelHtml(questionId) {
     `;
 }
 
-function markdownPreview(container, note) {
+function markdownPreview(container, note, settings) {
+    if(!settings.mdRender.enabled) return;
     const textarea = container.querySelector(".dsanotes-textarea");
     const previewDiv = container.querySelector(".preview");
 
@@ -179,24 +189,27 @@ function markdownPreview(container, note) {
     
     textarea.addEventListener("input",() => {
         showEditMode();
-        if(previewTimer) clearTimeout(previewTimer);
-        previewTimer = setTimeout(showPreviewMode, 2000);
+        if(settings.mdRender.autoRenderOnPause) {
+            if(previewTimer) clearTimeout(previewTimer);
+            previewTimer = setTimeout(showPreviewMode, 2000);
+        }
     });
 
-    // repositioning of cursor through mouse 
-    textarea.addEventListener("click",() => {
-        if(previewTimer) clearTimeout(previewTimer);
-        previewTimer = setTimeout(showPreviewMode,2000);
-    });
-
-    // repositioning of cursor throught keyboard keys 
-    textarea.addEventListener("keyup",(e) => {
-        if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","Home","End"].includes(e.key)) {
+    if(settings.mdRender.autoRenderOnPause) {
+        // repositioning of cursor through mouse 
+        textarea.addEventListener("click",() => {
             if(previewTimer) clearTimeout(previewTimer);
             previewTimer = setTimeout(showPreviewMode,2000);
-        }   
-    })
+        });
 
+        // repositioning of cursor throught keyboard keys 
+        textarea.addEventListener("keyup",(e) => {
+            if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","Home","End"].includes(e.key)) {
+                if(previewTimer) clearTimeout(previewTimer);
+                previewTimer = setTimeout(showPreviewMode,2000);
+            }   
+        })
+    }
     previewDiv.addEventListener("click",() => {
         showEditMode();
         focusCursor();
@@ -207,20 +220,12 @@ function markdownPreview(container, note) {
     }
 }
 
-function labelFeature(container, note, doSave) {
-        
+function labelFeature(container, note, doSave, settings) {
+    if(!settings.labelInput.enabled) return;
     let currentLabels = [...(note?.labels ?? [])];
-    let labelInputVisible = currentLabels.length === 0;
 
-    const toggleInputBtn = container.querySelector(".toggle-input-btn");
     const chipContainer = container.querySelector(".label-chips");
     const labelInput = container.querySelector(".label-input");
-
-    function updateLabelInputVisibility() {
-        labelInput.style.display = labelInputVisible ? "block" : "none";
-        toggleInputBtn.textContent = labelInputVisible ? "-" : "+";
-    }
-    updateLabelInputVisibility();
 
     function renderChips() {
         chipContainer.innerHTML = "";
@@ -260,25 +265,39 @@ function labelFeature(container, note, doSave) {
         }
     });
 
-    toggleInputBtn.addEventListener("click", () => {
-        labelInputVisible = !labelInputVisible;
+    if(settings.labelInput.toggleButton) {
+        let labelInputVisible = currentLabels.length === 0;
+        const toggleInputBtn = container.querySelector(".toggle-input-btn");
+
+        function updateLabelInputVisibility() {
+            labelInput.style.display = labelInputVisible ? "block" : "none";
+            toggleInputBtn.textContent = labelInputVisible ? "-" : "+";
+        }
         updateLabelInputVisibility();
-        if(labelInputVisible) labelInput.focus();
-    });
+
+        toggleInputBtn.addEventListener("click", () => {
+            labelInputVisible = !labelInputVisible;
+            updateLabelInputVisibility();
+            if(labelInputVisible) labelInput.focus();
+        });
+    }
 
     return {
         getLabels: () => currentLabels
     };
 }
+// -------------------------------------------------------------------------------------
 
-export function renderPanel({ site, questionId, title, note, onSave, onDelete}) {
+export async function renderPanel({ site, questionId, title, note, onSave, onDelete}) {
+    const settings = await getSettings();
+
     // console.log("renderPanel called with", questionId, title);
     const root = ensureShadowHost();
     // console.log("root reference", root, "children count", root.children.length);
     const container = document.createElement("div");
     container.className = `dsanotes-panel${isCollapsed ? " dsanotes-collapsed" : ""}`;
     
-    container.innerHTML = buildPanelHtml(questionId);
+    container.innerHTML = buildPanelHtml(questionId,settings);
 
     const textarea = container.querySelector(".dsanotes-textarea");
     textarea.value = note?.content ?? "";
@@ -302,7 +321,7 @@ export function renderPanel({ site, questionId, title, note, onSave, onDelete}) 
         onSave( questionId, {
             content: textarea.value,
             createdAt: note?.createdAt,
-            labels: labelController.getLabels()
+            labels: labelController.getLabels() ?? note?.labels ?? []
         });
         panelElements.lastSavedContent = textarea.value;
     }
@@ -336,11 +355,11 @@ export function renderPanel({ site, questionId, title, note, onSave, onDelete}) 
         doSave();
     });
 
-    const labelController = labelFeature(container,note,doSave);
+    const labelController = labelFeature(container,note,doSave, settings);
 
     panelElements = { container, textarea, status, lastSavedContent: note?.content ?? "" };
 
-    markdownPreview(container,note);
+    markdownPreview(container,note, settings);
 }
 
 export function updatePanel(savedRecord) {

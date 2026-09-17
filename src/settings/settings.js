@@ -1,5 +1,3 @@
-import { chromeExtension } from "@crxjs/vite-plugin/dist/index.js";
-
 const DEFAULT_SETTINGS = {
     labelInput: {
         enabled: true,
