@@ -321,7 +321,7 @@ export async function renderPanel({ site, questionId, title, note, onSave, onDel
         onSave( questionId, {
             content: textarea.value,
             createdAt: note?.createdAt,
-            labels: labelController.getLabels() ?? note?.labels ?? []
+            labels: labelController?.getLabels() ?? note?.labels ?? []
         });
         panelElements.lastSavedContent = textarea.value;
     }

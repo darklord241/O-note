@@ -10,7 +10,7 @@ let settings = null;
 
 async function init() {
     settings = await getSettings();
-    loadNoteCount();
+    await loadNoteCount();
 
     if(settings?.export) {
         exportBtn.addEventListener("click", () => {

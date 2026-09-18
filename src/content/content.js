@@ -103,7 +103,7 @@ chrome.runtime.onMessage.addListener((message) => {
     }
     else if(message.type === MESSAGE_TYPES.TOGGLE_MODE) {
         // console.log("toggle mode received in content.js");
-        if(settings?.mdRender.shortcut) toggleMode();
+        if(settings?.mdRender?.enabled && settings?.mdRender?.shortcut) toggleMode();
     }
 });
 

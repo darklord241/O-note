@@ -4,6 +4,11 @@
 - Wire buildPanelHTML(settings) last, once you know exactly which DOM chunks each module needs conditionally present.
 - a sites toggle change won't take effect until the content script itself reloads — which happens on a genuine page reload, not on LeetCode's SPA in-page navigation between problems (that's exactly the scenario isProcessing/onHistoryStateUpdated exist to handle without a real page load). So if you flip a site off in options and just click to another problem, you won't see it take effect until you hit browser-refresh.
 
+### errors 
+- the names of the checkboxes and those in settings object were not matching so fixed that up 
+- the export button was not being disabled cuz the loadNoteSettings was not awaited and hence the `count !== 0` check made the `.disabled = false` instead of true for toggle 
+- `?` undefined checking for settings and label 
+
 ### npm run dev 
 - this was set up before only and it is used to test things out as the code changes 
 - i dont have to build it everytime and move it to windows and unpack it 

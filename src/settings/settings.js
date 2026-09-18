@@ -1,11 +1,11 @@
 const DEFAULT_SETTINGS = {
     labelInput: {
         enabled: true,
-        toggleButton: true
+        toggleInput: true
     },
     mdRender: {
         enabled: true,
-        shortcut: true,        // Alt+K manual toggle
+        toggleModeShortcut: true,        // Alt+K manual toggle
         autoRenderOnPause: true // automatic preview after typing pause
     },
     togglePanelShortcut: true,   // standalone, no children — stays a flat boolean
