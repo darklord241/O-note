@@ -13,6 +13,19 @@ function slugToTitle(slug) {
         .join(" ");
 }
 
+async function generateChecksum(data) {
+    const encoder = new TextEncoder();
+    const encodedData = encoder.encode(JSON.stringify(data));
+
+    const hashBuffer = await crypto.subtle.digest("SHA-256", encodedData);
+
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+
+    return hashArray
+        .map(byte => byte.toString(16).padStart(2, "0"))
+        .join("");
+}
+
 function downloadFile(content, type, filename) {
     const blob = new Blob([content], { type: `application/${type};charset=utf-8`});
     const url = URL.createObjectURL(blob);
@@ -67,6 +80,8 @@ function buildJson(records) {
         format: "dsa-notes-backup",
         version: 1,
         createdAt: Date.now(),
+        checksumAlgorithm: "SHA-256",
+        checksum: generateChecksum(records),
         data: records
     },null,2);
 }

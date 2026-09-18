@@ -21,3 +21,18 @@
     - `e.target.files[]` : files is a special property that exists specifically on file-type inputs: it's a FileList — plural, because <input type="file"> supports selecting multiple files at once if you add the multiple attribute (which yours doesn't).
     - hence `files[0]` is used to take the first file only 
 
+### commit 3 : checksum and modularization 
+- doubts 
+    - this checksum check is not that important for manual importing but for automated backup where i check the latest files checksum 
+    oh wait in that situation i need to check the existing files checksum with the db checksum and that does not lie within import-handler but in export-handler which is called in the automated backup script but overall checksum is needed so its fine 
+    - now cachedNotes, before i came to you claude gave the option of passing an arrow function which return cachedNotes instead of the variable itself so that whenever the func argument is called , it gets the latest notes but as you have said already its not a problem for now 
+    in the situation where i open the extension and then popup and in another tab change a note then if the changed db is different from the cachedNotes in the other tab with popup then it would be a problem but i feel that the cachedNotes wont be updated cuz init is only called once 
+    - and also you said about updating the loadNoteCount  after importing to show the change so i have to call this everytime the import button is click so i just write a small event listener in popup for this 
+    - now for the schema thingy , i can't gurantee that the version maintains the schema cuz what if a person changes the data manually without the version then i would hv different schema which passes the version check na 
+- final things 
+    - checksum is in `storage/export.js` and tht is imp 
+    - cachedNotes is not a problem for now cuz the popup will have the latest notes and it is not that big of a bug 
+    - yeah i added a event listener for tht but this could also be an issue if the `loadNoteCount` finished before the import takes place which would be a timing issue but not an imp one for now 
+    - yeah schema validation could be one feature later on but i think its very niche and not required for now 
+    - am using `sha-256` only on the data of the json info and not all the fields cuz that data in db is the one whose change i have to look for 
+    - one addition is a better import difference rather than using alert or confirm
