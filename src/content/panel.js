@@ -1,5 +1,6 @@
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
+import { getSettings } from '../settings/settings.js';
 
 marked.setOptions({
     // line breaks are properly converted to <br> 
@@ -15,6 +16,8 @@ let autosaveTimer = null;
 let previewTimer = null;
 let isCollapsed = true;
 
+// helper functions 
+// ------------------------------------------------------------------------------------
 function slugToTitle(slug) {
   return slug
     .split("-")
@@ -140,15 +143,21 @@ export function toggleMode() {
         showPreviewMode();
     }
 }
+// -------------------------------------------------------------------------------------
 
-export function renderPanel({ site, questionId, title, note, onSave, onDelete}) {
-    // console.log("renderPanel called with", questionId, title);
-    const root = ensureShadowHost();
-    // console.log("root reference", root, "children count", root.children.length);
-    const container = document.createElement("div");
-    container.className = `dsanotes-panel${isCollapsed ? " dsanotes-collapsed" : ""}`;
-    
-    container.innerHTML = `
+// feature functions
+// -------------------------------------------------------------------------------------
+function buildPanelHtml(questionId,settings) {
+    const labelSection = settings.labelInput.enabled 
+        ? `<div class="label-wrapper">
+                <div class="label-row">
+                    <div class="label-chips"></div>
+                    ${settings.labelInput.toggleButton ? `<button class="toggle-input-btn" type="button">+</button>` : ``}
+                </div>
+                <input type="text" class="label-input" placeholder="add label" autocomplete="off" />
+            </div>` : ``;
+
+    return `
         <div class="dsanotes-header">
             <span class="dsanotes-title">${slugToTitle(questionId)}</span>
             <div class="dsanotes-header-controls">
@@ -157,13 +166,7 @@ export function renderPanel({ site, questionId, title, note, onSave, onDelete}) 
             </div>
         </div>
         <div class="dsanotes-body">
-            <div class="label-wrapper">
-                <div class="label-row">
-                    <div class="label-chips"></div>
-                    <button class="toggle-input-btn" type="button">+</button>
-                </div>
-                <input type="text" class="label-input" placeholder="add label" autocomplete="off" />
-            </div>
+            ${labelSection}
             <textarea class="dsanotes-textarea" placeholder="write your notes"></textarea>
             <div class="preview" style="display:none;"></div>
             <div class="btns">
@@ -172,22 +175,57 @@ export function renderPanel({ site, questionId, title, note, onSave, onDelete}) 
             </div>
         </div>
     `;
+}
 
+function markdownPreview(container, note, settings) {
+    if(!settings.mdRender.enabled) return;
     const textarea = container.querySelector(".dsanotes-textarea");
-    textarea.value = note?.content ?? "";
+    const previewDiv = container.querySelector(".preview");
 
+    if(previewTimer) {
+        clearTimeout(previewTimer);
+        previewTimer = null;
+    }
+    
+    textarea.addEventListener("input",() => {
+        showEditMode();
+        if(settings.mdRender.autoRenderOnPause) {
+            if(previewTimer) clearTimeout(previewTimer);
+            previewTimer = setTimeout(showPreviewMode, 2000);
+        }
+    });
+
+    if(settings.mdRender.autoRenderOnPause) {
+        // repositioning of cursor through mouse 
+        textarea.addEventListener("click",() => {
+            if(previewTimer) clearTimeout(previewTimer);
+            previewTimer = setTimeout(showPreviewMode,2000);
+        });
+
+        // repositioning of cursor throught keyboard keys 
+        textarea.addEventListener("keyup",(e) => {
+            if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","Home","End"].includes(e.key)) {
+                if(previewTimer) clearTimeout(previewTimer);
+                previewTimer = setTimeout(showPreviewMode,2000);
+            }   
+        })
+    }
+    previewDiv.addEventListener("click",() => {
+        showEditMode();
+        focusCursor();
+    });
+
+    if(note?.content) {
+        showPreviewMode();
+    }
+}
+
+function labelFeature(container, note, doSave, settings) {
+    if(!settings.labelInput.enabled) return;
     let currentLabels = [...(note?.labels ?? [])];
-    let labelInputVisible = currentLabels.length === 0;
 
-    const toggleInputBtn = container.querySelector(".toggle-input-btn");
     const chipContainer = container.querySelector(".label-chips");
     const labelInput = container.querySelector(".label-input");
-
-    function updateLabelInputVisibility() {
-        labelInput.style.display = labelInputVisible ? "block" : "none";
-        toggleInputBtn.textContent = labelInputVisible ? "-" : "+";
-    }
-    updateLabelInputVisibility();
 
     function renderChips() {
         chipContainer.innerHTML = "";
@@ -211,22 +249,65 @@ export function renderPanel({ site, questionId, title, note, onSave, onDelete}) 
     }
     renderChips();
 
+    labelInput.addEventListener("keydown", (e) => {
+        if(e.key === "Enter" || e.key === ",") {
+            e.preventDefault();
+            const value = labelInput.value.trim().replace(",","");
+            if(value && !currentLabels.some(l => l.toLowerCase() === value.toLowerCase())) {
+                currentLabels.push(value);
+                renderChips();
+                labelInput.value = "";
+                doSave();
+            }
+            else {
+                labelInput.value = "";
+            }
+        }
+    });
+
+    if(settings.labelInput.toggleButton) {
+        let labelInputVisible = currentLabels.length === 0;
+        const toggleInputBtn = container.querySelector(".toggle-input-btn");
+
+        function updateLabelInputVisibility() {
+            labelInput.style.display = labelInputVisible ? "block" : "none";
+            toggleInputBtn.textContent = labelInputVisible ? "-" : "+";
+        }
+        updateLabelInputVisibility();
+
+        toggleInputBtn.addEventListener("click", () => {
+            labelInputVisible = !labelInputVisible;
+            updateLabelInputVisibility();
+            if(labelInputVisible) labelInput.focus();
+        });
+    }
+
+    return {
+        getLabels: () => currentLabels
+    };
+}
+// -------------------------------------------------------------------------------------
+
+export async function renderPanel({ site, questionId, title, note, onSave, onDelete}) {
+    const settings = await getSettings();
+
+    // console.log("renderPanel called with", questionId, title);
+    const root = ensureShadowHost();
+    // console.log("root reference", root, "children count", root.children.length);
+    const container = document.createElement("div");
+    container.className = `dsanotes-panel${isCollapsed ? " dsanotes-collapsed" : ""}`;
+    
+    container.innerHTML = buildPanelHtml(questionId,settings);
+
+    const textarea = container.querySelector(".dsanotes-textarea");
+    textarea.value = note?.content ?? "";
+
     const existing = root.querySelector(".dsanotes-panel");
     // console.log("existing panel found?", !!existing);
     if(existing) existing.remove();
     root.appendChild(container);
     // console.log("new panel appended");
 
-    if(autosaveTimer) {
-        clearTimeout(autosaveTimer);
-        autosaveTimer= null;
-    }
-    if(previewTimer) {
-        clearTimeout(previewTimer);
-        previewTimer = null;
-    }
-
-    const previewDiv = container.querySelector(".preview");
     const header = container.querySelector(".dsanotes-header");
     const collapseBtn = container.querySelector(".collapse-btn");
     const saveBtn = container.querySelector(".save-btn");
@@ -240,7 +321,7 @@ export function renderPanel({ site, questionId, title, note, onSave, onDelete}) 
         onSave( questionId, {
             content: textarea.value,
             createdAt: note?.createdAt,
-            labels: currentLabels
+            labels: labelController?.getLabels() ?? note?.labels ?? []
         });
         panelElements.lastSavedContent = textarea.value;
     }
@@ -250,44 +331,22 @@ export function renderPanel({ site, questionId, title, note, onSave, onDelete}) 
         onDelete(questionId);
     }
 
-    function handleInput() {
+    if(autosaveTimer) {
+        clearTimeout(autosaveTimer);
+        autosaveTimer= null;
+    }
+
+    textarea.addEventListener("input", () => {
         const isUpdated = textarea.value !== panelElements.lastSavedContent;
         status.textContent = isUpdated ? "Unsaved" : "";
 
         if(autosaveTimer) clearTimeout(autosaveTimer);
-        if(previewTimer) clearTimeout(previewTimer);
-
         if(isUpdated) {
             autosaveTimer = setTimeout(doSave, 1000);
         }
-        previewTimer = setTimeout(showPreviewMode, 2000);
-    }
+    });        
 
     collapseBtn.addEventListener("click", togglePanel);
-
-    textarea.addEventListener("input",() => {
-        showEditMode();
-        handleInput();
-    });
-
-    // repositioning of cursor through mouse 
-    textarea.addEventListener("click",() => {
-        if(previewTimer) clearTimeout(previewTimer);
-        previewTimer = setTimeout(showPreviewMode,2000);
-    });
-
-    // repositioning of cursor throught keyboard keys 
-    textarea.addEventListener("keyup",(e) => {
-        if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","Home","End"].includes(e.key)) {
-            if(previewTimer) clearTimeout(previewTimer);
-            previewTimer = setTimeout(showPreviewMode,2000);
-        }   
-    })
-
-    previewDiv.addEventListener("click",() => {
-        showEditMode();
-        focusCursor();
-    });
 
     deleteBtn.addEventListener("click", delNote);
 
@@ -296,33 +355,11 @@ export function renderPanel({ site, questionId, title, note, onSave, onDelete}) 
         doSave();
     });
 
-    labelInput.addEventListener("keydown", (e) => {
-        if(e.key === "Enter" || e.key === ",") {
-            e.preventDefault();
-            const value = labelInput.value.trim().replace(",","");
-            if(value && !currentLabels.some(l => l.toLowerCase() === value.toLowerCase)) {
-                currentLabels.push(value);
-                renderChips();
-                labelInput.value = "";
-                doSave();
-            }
-            else {
-                labelInput.value = "";
-            }
-        }
-    });
-
-    toggleInputBtn.addEventListener("click", () => {
-        labelInputVisible = !labelInputVisible;
-        updateLabelInputVisibility();
-        if(labelInputVisible) labelInput.focus();
-    });
-
-    if(note?.content) {
-        showPreviewMode();
-    }
+    const labelController = labelFeature(container,note,doSave, settings);
 
     panelElements = { container, textarea, status, lastSavedContent: note?.content ?? "" };
+
+    markdownPreview(container,note, settings);
 }
 
 export function updatePanel(savedRecord) {

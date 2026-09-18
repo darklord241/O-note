@@ -1,10 +1,40 @@
 import { getAllNotes } from "../storage/notes-store.js"; 
 import { exportAllNotes } from "../storage/export.js";
+import { getSettings } from "../settings/settings.js";
 
 const noteCount = document.getElementById("note-count");
 const exportBtn = document.getElementById("export-btn");
 
 let cachedNotes = [];
+let settings = null;
+
+async function init() {
+    settings = await getSettings();
+    await loadNoteCount();
+
+    if(settings?.export) {
+        exportBtn.addEventListener("click", () => {
+            if(cachedNotes.length === 0) return;
+
+            // this boolean change prevents repeated button clicks from firing the exportAllNotes function while one is still running 
+            exportBtn.disabled = true;
+            exportBtn.textContent = "Exporting started";
+            try {
+                exportAllNotes(cachedNotes);
+            } 
+            catch (err) {
+                console.error("failed to export notes", err);
+            }
+            finally {
+                exportBtn.textContent = "Export all notes";
+                exportBtn.disabled = false;
+            }
+        });
+    }
+    else {
+        exportBtn.disabled = true;
+    }
+}
 
 async function loadNoteCount() {
     try {
@@ -27,22 +57,4 @@ async function loadNoteCount() {
     }
 }
 
-exportBtn.addEventListener("click", () => {
-    if(cachedNotes.length === 0) return;
-
-    // this boolean change prevents repeated button clicks from firing the exportAllNotes function while one is still running 
-    exportBtn.disabled = true;
-    exportBtn.textContent = "Exporting started";
-    try {
-        exportAllNotes(cachedNotes);
-    } 
-    catch (err) {
-        console.error("failed to export notes", err);
-    }
-    finally {
-        exportBtn.textContent = "Export all notes";
-        exportBtn.disabled = false;
-    }
-});
-
-loadNoteCount();
+init();

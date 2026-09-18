@@ -6,6 +6,8 @@
 
     "permissions": ["storage","webNavigation"],
     "host_permissions": ["https://leetcode.com/*","https://codeforces.com/*"],
+    
+    "options_page": "src/options/options.html",
 
     "background": {
         "service_worker": "src/background/background.js",
@@ -16,7 +18,6 @@
         {
             "matches": ["https://leetcode.com/*","https://codeforces.com/*"],
             "js": ["src/content/content.js"],
-            "css": ["src/content/panel.css"],
             "run_at": "document_idle"
         }
     ],

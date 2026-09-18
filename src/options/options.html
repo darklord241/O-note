@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>DSA Notes</title>
+        <link rel="stylesheet" href="options.css" />
+    </head>
+    <body>
+        <fieldset>
+            <legend>Label</legend>
+            <label><input type="checkbox" data-path="labelInput.enabled">Enable Label</label>
+            <label class="sub-option">
+                <input type="checkbox" data-path="labelInput.toggleInput" data-depends-on="labelInput.enabled">
+                Enable toggle label input button
+            </label>
+        </fieldset>
+        <fieldset>
+            <legend>Markdown Support</legend>
+            <label><input type="checkbox" data-path="mdRender.enabled">Enable Markdown</label>
+            <label class="sub-option">
+                <input type="checkbox" data-path="mdRender.toggleModeShortcut" data-depends-on="mdRender.enabled">
+                Enable toggle mode shortcut (Alt+K)
+            </label>
+            <label class="sub-option">
+                <input type="checkbox" data-path="mdRender.autoRenderOnPause" data-depends-on="mdRender.enabled">
+                Autorender after 2 s of no activity in panel
+            </label>
+        </fieldset>
+        <fieldset>    
+            <legend>Panel Toggling Shortcut</legend>
+            <label><input type="checkbox" data-path="togglePanelShortcut">Enable (Alt+L)</label>
+        </fieldset>
+        <fieldset>
+            <legend>Export </legend>
+            <label><input type="checkbox" data-path="export">Enable</label>
+        </fieldset>
+        <fieldset>
+            <legend>Site</legend>
+            <label class="sub-option"><input type="checkbox" data-path="sites.codeforces">Codeforces</input></label>
+            <label class="sub-option"><input type="checkbox" data-path="sites.leetcode">Leetcode</input></label>
+        </fieldset>
+        <script type="module" src="options.js"></script>
+    </body>
+</html> 
