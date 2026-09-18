@@ -13,6 +13,19 @@ function slugToTitle(slug) {
         .join(" ");
 }
 
+function downloadFile(content, type, filename) {
+    const blob = new Blob([content], { type: `application/${type};charset=utf-8`});
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
 function buildMd(records) {
     const grouped = {};
     for(const record of records) {
@@ -20,7 +33,7 @@ function buildMd(records) {
         grouped[record.site].push(record);
     }
 
-    const exportDate = formatDate(Date.now);
+    const exportDate = formatDate(Date.now());
     let output = `# DSA Notes Export\n*Exported on : ${exportDate}* \n\n---\n\n`;
     const sites = Object.keys(grouped).sort();
 
@@ -43,21 +56,23 @@ function buildMd(records) {
     return output;
 }
 
-function downloadMdFile(markdownText, filename="dsa-notes-export.md") {
-    const blob = new Blob([markdownText], { type: "text/markdown;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+export function exportMd(allRecords) {
+    const mdText = buildMd(allRecords);
+    const datestamp = new Date().toLocaleDateString('en-IN');
+    downloadFile(mdText, "markdown",`dsa-notes-export-${datestamp}.md`);
 }
 
-export function exportAllNotes(allRecords) {
-    const markdown = buildMd(allRecords);
-    const datestamp = new Date().toISOString().split("T")[0];
-    downloadMdFile(markdown, `dsa-notes-export-${datestamp}.md`);
+function buildJson(records) {
+    return JSON.stringify({
+        format: "dsa-notes-backup",
+        version: 1,
+        createdAt: Date.now(),
+        data: records
+    },null,2);
+}
+
+export function exportJson(allRecords) {
+    const jsonText = buildJson(allRecords);
+    const datestamp = new Date().toLocaleDateString('en-IN');
+    downloadFile(jsonText, "json", `dsa-notes-export-${datestamp}.json`);
 }
