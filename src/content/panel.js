@@ -152,7 +152,7 @@ function buildPanelHtml(questionId,settings) {
         ? `<div class="label-wrapper">
                 <div class="label-row">
                     <div class="label-chips"></div>
-                    ${settings.labelInput.toggleButton ? `<button class="toggle-input-btn" type="button">+</button>` : ``}
+                    ${settings.labelInput.toggleInput ? `<button class="toggle-input-btn" type="button"></button>` : ``}
                 </div>
                 <input type="text" class="label-input" placeholder="add label" autocomplete="off" />
             </div>` : ``;
@@ -265,7 +265,7 @@ function labelFeature(container, note, doSave, settings) {
         }
     });
 
-    if(settings.labelInput.toggleButton) {
+    if(settings.labelInput.toggleInput) {
         let labelInputVisible = currentLabels.length === 0;
         const toggleInputBtn = container.querySelector(".toggle-input-btn");
 
