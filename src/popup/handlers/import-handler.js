@@ -28,17 +28,17 @@ export function setupImportHandler(cachedNotes) {
     });
 }
 
-function validateBackup(parsed) {
+async function validateBackup(parsed) {
     if(!parsed || typeof parsed !== "object") return { valid: false, reason: "Not a valid JSON object" };
     if(parsed.format !== "dsa-notes-backup") return { valid: false, reason: "This is not a valid DSA notes backup file " };
     if(parsed.version !== 1) return { valid: false, reason: `Unsupported backup version ${parsed.version}` };
-    if(generateChecksum(notesInDb) === parsed.checksum ) return { valid: false, reason: "the notes in db are same as imported files"};
+    if(await generateChecksum(notesInDb) === parsed.checksum ) return { valid: false, reason: "the notes in db are same as imported files"};
     if(!Array.isArray(parsed.data)) return { valid: false, reason: "Backup data has malformed" };
     return { valid: true };
 }
 
 async function handleImport(parsed) {
-    const result = validateBackup(parsed);
+    const result = await validateBackup(parsed);
     if(!result.valid) {
         alert(result.reason);
         return;

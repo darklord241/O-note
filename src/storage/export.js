@@ -13,7 +13,7 @@ function slugToTitle(slug) {
         .join(" ");
 }
 
-async function generateChecksum(data) {
+export async function generateChecksum(data) {
     const encoder = new TextEncoder();
     const encodedData = encoder.encode(JSON.stringify(data));
 
@@ -75,19 +75,19 @@ export function exportMd(allRecords) {
     downloadFile(mdText, "markdown",`dsa-notes-export-${datestamp}.md`);
 }
 
-function buildJson(records) {
+export async function buildJson(records) {
     return JSON.stringify({
         format: "dsa-notes-backup",
         version: 1,
         createdAt: Date.now(),
         checksumAlgorithm: "SHA-256",
-        checksum: generateChecksum(records),
+        checksum: await generateChecksum(records),
         data: records
     },null,2);
 }
 
-export function exportJson(allRecords) {
-    const jsonText = buildJson(allRecords);
+export async function exportJson(allRecords) {
+    const jsonText = await buildJson(allRecords);
     const datestamp = new Date().toLocaleDateString('en-IN');
     downloadFile(jsonText, "json", `dsa-notes-export-${datestamp}.json`);
 }

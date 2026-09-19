@@ -19,14 +19,14 @@ export function setupExportHandler(cachedNotes) {
             exportBtnMd.disabled = false;
         }
     });
-    exportBtnJson.addEventListener("click", () => {
+    exportBtnJson.addEventListener("click", async () => {
         if(cachedNotes.length === 0) return;
 
         // this boolean change prevents repeated button clicks from firing the exportAllNotes function while one is still running 
         exportBtnJson.disabled = true;
         exportBtnJson.textContent = "Exporting started";
         try {
-            exportJson(cachedNotes);
+            await exportJson(cachedNotes);
         } catch (err) {
             console.error("failed to export notes", err);
         } finally {
