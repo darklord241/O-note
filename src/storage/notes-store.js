@@ -43,3 +43,6 @@ export async function getAllNotes() {
     return await db.notes.toArray();
 }
 
+export async function importNotes(records) {
+    await db.notes.bulkPut(records);
+}

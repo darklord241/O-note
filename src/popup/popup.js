@@ -1,9 +1,12 @@
 import { getAllNotes } from "../storage/notes-store.js"; 
-import { exportAllNotes } from "../storage/export.js";
 import { getSettings } from "../settings/settings.js";
+import { setupExportHandler } from "./handlers/export-handler.js";
+import { setupImportHandler } from "./handlers/import-handler.js";
 
 const noteCount = document.getElementById("note-count");
-const exportBtn = document.getElementById("export-btn");
+const exportBtnMd = document.getElementById("export-btn-md");
+const exportBtnJson = document.getElementById("export-btn-json");
+const importBtn = document.getElementById("import-btn");
 
 let cachedNotes = [];
 let settings = null;
@@ -13,26 +16,14 @@ async function init() {
     await loadNoteCount();
 
     if(settings?.export) {
-        exportBtn.addEventListener("click", () => {
-            if(cachedNotes.length === 0) return;
-
-            // this boolean change prevents repeated button clicks from firing the exportAllNotes function while one is still running 
-            exportBtn.disabled = true;
-            exportBtn.textContent = "Exporting started";
-            try {
-                exportAllNotes(cachedNotes);
-            } 
-            catch (err) {
-                console.error("failed to export notes", err);
-            }
-            finally {
-                exportBtn.textContent = "Export all notes";
-                exportBtn.disabled = false;
-            }
-        });
+        setupExportHandler(cachedNotes);
+        setupImportHandler(cachedNotes);
+        importBtn.addEventListener("click", async () => { await loadNoteCount(); });
     }
     else {
-        exportBtn.disabled = true;
+        exportBtnMd.disabled = true;
+        exportBtnJson.disabled = true;
+        importBtn.disabled = true;
     }
 }
 
@@ -43,17 +34,20 @@ async function loadNoteCount() {
 
         if(count === 0) {
             noteCount.textContent = "Go solve some questions first da";
-            exportBtn.disabled = true;
+            exportBtnMd.disabled = true;
+            exportBtnJson.disabled = true;
         }
         else {
             noteCount.textContent = `${count} note${count === 1 ? "" : "s"} saved`;
-            exportBtn.disabled = false;
+            exportBtnMd.disabled = false;
+            exportBtnJson.disabled = false;
         }
     }
     catch (err) {
         // console.error("failed to load notes", err);
         noteCount.textContent = "errorara";
-        exportBtn.disabled = true;
+        exportBtnMd.disabled = true;
+        exportBtnJson.disabled = true;
     }
 }
 
