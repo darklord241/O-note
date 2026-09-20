@@ -1,7 +1,11 @@
 import { getAllNotes } from "../storage/notes-store.js";
 
+let allNotes = [];
 const noteCount = document.getElementById("note-count");
 const notesContainer = document.getElementById("notes-container");
+const siteFilter = document.getElementById("site-filter");
+const labelFilter = document.getElementById("label-filter");
+const searchFilter = document.getElementById("search-input");
 
 function createNoteCard(note) {
     const noteCard = document.createElement("div");
@@ -25,13 +29,50 @@ function createNoteCard(note) {
     return noteCard;
 }
 
-async function renderPage() {
-    const allNotes = await getAllNotes();
-    noteCount.textContent = allNotes.length;
+function renderNotes(notes) {
     notesContainer.innerHTML = "";
-    allNotes.forEach(note => {
+    notes.forEach(note => {
         notesContainer.appendChild(createNoteCard(note));
     });
+}
+
+function applyFilters() {
+    const selectedSite = siteFilter.value;
+    const selectedLabel = labelFilter.value;
+    const searchInput = searchFilter.value;
+
+    let filteredNotes = allNotes;
+
+    if(selectedSite !== "all") {
+        filteredNotes = filteredNotes.filter(note => {
+            return note.site === selectedSite;
+        });
+    }
+
+    if(selectedLabel !== "all") {
+        filteredNotes = filteredNotes.filter(note => {
+            return note.labels.includes(selectedLabel);
+        });
+    }
+
+    if(searchInput !== "") {
+        filteredNotes = filteredNotes.filter(note => {
+            return note.questionId.toLowerCase().includes(searchInput.toLowerCase()) || 
+                note.note.toLowerCase().includes(searchInput.toLowerCase()) ||
+                note.labels.some(label => label.toLowerCase().includes(searchInput.toLowerCase()));
+        });
+    }
+
+    renderNotes(filteredNotes);
+}
+
+async function renderPage() {
+    allNotes = await getAllNotes();
+    noteCount.textContent = allNotes.length;
+    applyFilters();
+    siteFilter.addEventListener("change",applyFilters);
+    labelFilter.addEventListener("change",applyFilters);
+    searchFilter.addEventListener("input",applyFilters);
 }
 
 renderPage();
