@@ -6,7 +6,7 @@
     3. filtering : sites -> labels
     4. search across : note, questionId, label
     5. sorting 
-    6. add ques url with note card
+    6. add ques url with note card 
 - view all is done using the `getAllNotes()` func so pretty easy but setting up the html page is smtg i dont like 
 - note card again is smtg that i will apply on the cachedNotes 
 
@@ -27,6 +27,19 @@
 - now the filtering on lables is AND which means all the labels should be there but my filtering UI currently takes only one label at a time cuz it is a select element 
 - this search input is real time filtering which means the notes update on each and every change of char in the searchbar 
 - the search is done on labels, questionId as well as the content of the note
-- i thought i had saved the actual notes in db as `content` and not `note` but somewhere it got changed (have to check)
+- i thought i had saved the actual notes in db as `content` and not `note` but somewhere it got changed (have to check) **read the next commit 3rd point**
 - there is a js niche case in `note.labels.some(label => label.toLowerCase().includes(searchInput.toLowerCase()));` where if i use `{}` with arrow func then a return is required but without it, works normally itself 
-- 
+
+### commit 3 
+- i removed the alphabetical sorting cuz its not required man 
+- i added sorting here and used the concept of `Comparators` which i had learnt in Java for heaps in DSA damn 
+- so i faced a notes generation change due to the md to json i got from chatgpt which had note instead of content so when i added a new note it had content only and hence i had to import the notes after changing all note to content and also change it within the scripts 
+- next error i found is the labels were not being added into the dropdown so i had missed that part, got it done 
+
+### things left to do 
+- Open Question button → actually navigate to the LeetCode/Codeforces problem
+- Empty-state message when no notes match
+- Search-match highlighting
+- Maybe improve the card layout / multiple cards per row
+- A bit of UI cleanup/responsiveness
+- Possibly preserve the selected filters while interacting with the page
