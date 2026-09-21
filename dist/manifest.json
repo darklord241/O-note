@@ -1,0 +1,64 @@
+{
+  "manifest_version": 3,
+  "name": "O(note)",
+  "version": "3",
+  "description": "Take notes on DSA questions directly on leetcode",
+  "permissions": [
+    "storage",
+    "webNavigation"
+  ],
+  "host_permissions": [
+    "https://leetcode.com/*",
+    "https://codeforces.com/*"
+  ],
+  "options_page": "src/options/options.html",
+  "background": {
+    "service_worker": "service-worker-loader.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "js": [
+        "assets/content.js-loader-BZ97KauD.js"
+      ],
+      "matches": [
+        "https://leetcode.com/*",
+        "https://codeforces.com/*"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "matches": [
+        "https://codeforces.com/*",
+        "https://leetcode.com/*"
+      ],
+      "resources": [
+        "src/content/panel.css",
+        "assets/settings-DZkbCkLq.js",
+        "assets/constants-A6yBVVTt.js",
+        "assets/content.js-Fng7lKr8.js"
+      ],
+      "use_dynamic_url": false
+    }
+  ],
+  "commands": {
+    "toggle_panel": {
+      "suggested_key": {
+        "default": "Alt+L"
+      },
+      "description": "Toggle the notes panel"
+    },
+    "toggle_mode": {
+      "suggested_key": {
+        "default": "Alt+K"
+      },
+      "description": "Toggle the panel mode"
+    }
+  },
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_title": "O(note)"
+  }
+}

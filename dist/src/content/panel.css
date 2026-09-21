@@ -1,0 +1,251 @@
+.dsanotes-panel {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  width: 320px;
+  height: 320px;
+  min-width: 240px;
+  min-height: 180px;
+  resize: both;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: #1a1b2e;
+  color: #e5e5f0;
+  border: 1px solid #3d3b64;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  font-family: sans-serif;
+  font-size: 14px;
+  z-index: 999999;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.dsanotes-panel.dsanotes-collapsed {
+  resize: none;
+  height: auto !important;
+  min-height: 0 !important;
+  width: auto !important;
+  min-width: 180px;
+  overflow: visible;
+}
+
+.dsanotes-header {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
+  cursor: grab;
+  margin-bottom: 8px;
+  user-select: none;
+  gap: 8px;
+}
+
+.dsanotes-header:active {
+  cursor: grabbing;
+}
+
+.dsanotes-title {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex: 1;
+}
+
+.dsanotes-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.status {
+  font-size: 12px;
+  color: #14b8a6;
+}
+
+.collapse-btn {
+  background: none;
+  border: none;
+  color: #e5e5f0;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.dsanotes-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.dsanotes-panel.dsanotes-collapsed .dsanotes-body {
+  display: none;
+}
+
+.dsanotes-textarea,
+.preview {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  background: #22233d;
+  color: #e5e5f0;
+  border: 1px solid #3d3b64;
+  border-radius: 4px;
+  padding: 8px;
+  box-sizing: border-box;
+  font-family: "Fira Code", "JetBrains Mono", Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.dsanotes-textarea {
+  resize: none;
+}
+
+.preview {
+  overflow-y: auto;
+  cursor: text;
+}
+
+/* Scale down markdown headings so they don't blow out the panel */
+.preview h1 { font-size: 1.25em; margin: 0.4em 0; }
+.preview h2 { font-size: 1.15em; margin: 0.4em 0; }
+.preview h3 { font-size: 1.05em; margin: 0.3em 0; }
+.preview h4,
+.preview h5,
+.preview h6 { font-size: 1em; margin: 0.3em 0; }
+
+.preview p { margin: 0.4em 0; }
+.preview ul,
+.preview ol { margin: 0.4em 0; padding-left: 1.4em; }
+
+.preview code {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+.preview pre {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 6px;
+  border-radius: 4px;
+  overflow-x: auto;
+  margin: 0.4em 0;
+}
+
+.preview pre code {
+  background: none;
+  padding: 0;
+}
+
+.save-btn,
+.dlt-btn {
+  padding: 6px 12px;
+  background: #14b8a6;
+  color: #0a0a14;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.dlt-btn:hover {
+  background: rgba(248, 113, 113, 0.1);
+}
+
+.btns { 
+  display: flex; 
+  gap: 8px; 
+}
+
+.toggle-input-btn {
+  background: none;
+  border: 1px solid #3d3b64;
+  color: #e5e5f0;
+  border-radius: 4px;
+  width: 20px;
+  height: 20px;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.label-wrapper {
+  position: relative;
+  flex-shrink: 0;
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.label-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.label-chip {
+  display: inline-flex;   /* was: flex */
+  align-items: center;
+  gap: 4px;
+  background: rgba(20, 184, 166, 0.15);
+  border: 1px solid #14b8a6;
+  color: #14b8a6;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-family: sans-serif;
+  line-height: 1.4;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+} 
+
+.label-chip-remove {
+  background: none;
+  border: none;
+  color: #14b8a6;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+  padding: 0;
+  opacity: 0.7;
+}
+
+.label-chip-remove:hover {
+  opacity: 1;
+}
+
+.label-input {
+  width: 100%;
+  background: #22233d;
+  color: #e5e5f0;
+  border: 1px solid #3d3b64;
+  border-radius: 4px;
+  padding: 6px 8px;
+  box-sizing: border-box;
+  font-family: "Fira Code", "JetBrains Mono", Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  outline: none;
+}
+
+.label-input:focus {
+  border-color: #14b8a6;
+}
