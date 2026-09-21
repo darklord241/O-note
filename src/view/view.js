@@ -25,7 +25,7 @@ function createNoteCard(note) {
         <div class="note-content">${searchInput === "" ? note.content : highlightMatch(note.content,searchInput)}</div>
         <div class="note-meta">
             <span>Updated: ${new Date(note.updatedAt).toLocaleString()}</span>
-            <button class="open-question-btn">Open Question →</button>
+            <!-- <button class="open-question-btn">Open Question →</button> --> 
         </div>
     `;
     return noteCard;

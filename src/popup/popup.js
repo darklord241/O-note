@@ -7,6 +7,7 @@ const noteCount = document.getElementById("note-count");
 const exportBtnMd = document.getElementById("export-btn-md");
 const exportBtnJson = document.getElementById("export-btn-json");
 const importBtn = document.getElementById("import-btn");
+const viewBtn = document.getElementById("view-html");
 
 let cachedNotes = [];
 let settings = null;
@@ -14,6 +15,12 @@ let settings = null;
 async function init() {
     settings = await getSettings();
     await loadNoteCount();
+
+    viewBtn.addEventListener("click", () => {
+        chrome.tabs.create({
+            url: chrome.runtime.getURL("src/view/view.html")
+        });
+    });
 
     if(settings?.export) {
         setupExportHandler(cachedNotes);

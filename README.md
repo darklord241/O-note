@@ -1,4 +1,4 @@
-# DSA Notes Extension
+# O(note)
 
 A Chromium browser extension for taking notes on DSA questions <br>
 Detects when you're on a single question page (LeetCode or Codeforces) <br> 

@@ -1,6 +1,6 @@
 { 
     "manifest_version": 3,
-    "name": "DSA_Notes",
+    "name": "O(note)",
     "version": "3",
     "description": "Take notes on DSA questions directly on leetcode",
 
@@ -46,6 +46,6 @@
 
     "action": {
         "default_popup": "src/popup/popup.html",
-        "default_title": "DSA Notes"
+        "default_title": "O(note)"
     }
 }

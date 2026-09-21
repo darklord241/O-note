@@ -47,7 +47,7 @@ function buildMd(records) {
     }
 
     const exportDate = formatDate(Date.now());
-    let output = `# DSA Notes Export\n*Exported on : ${exportDate}* \n\n---\n\n`;
+    let output = `# O(note) Export\n*Exported on : ${exportDate}* \n\n---\n\n`;
     const sites = Object.keys(grouped).sort();
 
     for(const site of sites) {
@@ -72,12 +72,12 @@ function buildMd(records) {
 export function exportMd(allRecords) {
     const mdText = buildMd(allRecords);
     const datestamp = new Date().toLocaleDateString('en-IN');
-    downloadFile(mdText, "markdown",`dsa-notes-export-${datestamp}.md`);
+    downloadFile(mdText, "markdown",`O(note)-export-${datestamp}.md`);
 }
 
 export async function buildJson(records) {
     return JSON.stringify({
-        format: "dsa-notes-backup",
+        format: "O(note)-backup",
         version: 1,
         createdAt: Date.now(),
         checksumAlgorithm: "SHA-256",
@@ -89,5 +89,5 @@ export async function buildJson(records) {
 export async function exportJson(allRecords) {
     const jsonText = await buildJson(allRecords);
     const datestamp = new Date().toLocaleDateString('en-IN');
-    downloadFile(jsonText, "json", `dsa-notes-export-${datestamp}.json`);
+    downloadFile(jsonText, "json", `O(note)-export-${datestamp}.json`);
 }
