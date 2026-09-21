@@ -9,19 +9,20 @@ const searchFilter = document.getElementById("search-input");
 const sortFilter = document.getElementById("sort-filter");
 
 function createNoteCard(note) {
+    const searchInput = searchFilter.value;
     const noteCard = document.createElement("div");
     noteCard.className = "note-card";
     noteCard.innerHTML = `
         <div class="note-card-header">
-            <div class="note-title">${note.questionId}</div>
+            <div class="note-title">${searchInput === "" ? note.questionId : highlightMatch(note.questionId,searchInput)}</div>
             <div class="note-site ${note.site}">${note.site}</div>
         </div>
         <div class="note-labels">
             ${note.labels.map(label => `
-                <span class="note-label">${label}</span>
+                <span class="note-label">${searchInput === "" ? label : highlightMatch(label,searchInput)}</span>
             `).join("")}
         </div>
-        <div class="note-content">${note.content}</div>
+        <div class="note-content">${searchInput === "" ? note.content : highlightMatch(note.content,searchInput)}</div>
         <div class="note-meta">
             <span>Updated: ${new Date(note.updatedAt).toLocaleString()}</span>
             <button class="open-question-btn">Open Question →</button>
@@ -76,6 +77,15 @@ function applyFilters() {
     }
 
     renderNotes(filteredNotes);
+}
+
+function highlightMatch(text, target) {
+    const escapedSearch = target.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regex = new RegExp(escapedSearch, "gi");
+
+    return text.replace(regex, match => {
+        return `<span class="search-match">${match}</span>`;
+    });
 }
 
 function populateLabelFilter() {

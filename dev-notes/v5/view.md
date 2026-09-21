@@ -43,3 +43,7 @@
 - Maybe improve the card layout / multiple cards per row
 - A bit of UI cleanup/responsiveness
 - Possibly preserve the selected filters while interacting with the page
+
+### commit 4 highlighting stuff 
+- this was purely UI stuff and so what i did here is `filteredNotes` has only those which match the search input and hence in `createNoteCard()` the searchInput === "" check shows that the filter is applied or not 
+- if the search filtered is applied then i have to call the highlightMatch part which replaces the match stuff after covering it in a span element which highlights it  
