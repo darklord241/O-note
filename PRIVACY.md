@@ -14,7 +14,7 @@ O-note does not use `chrome.storage.sync`.
 
 ## Data Collection
 
-O-note does not collect personal information, analytics data, browsing history, or user-created notes for transmission to the developer.
+O-note does not transmit browsing activity, user-created notes, or extension preferences to the developer or to any third-party service.
 
 O-note does not sell, rent, or share user data with third parties.
 

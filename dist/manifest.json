@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "O(note)",
   "version": "5",
-  "description": "Take notes on DSA questions on LeetCode and Codeforces — markdown, labels, autosave, and JSON backup, with a searchable notes view.",
+  "description": "O(note) helps users create, manage, search, and access personal notes associated with DSA problems on LeetCode and Codeforces.",
   "permissions": [
     "storage",
     "webNavigation"
