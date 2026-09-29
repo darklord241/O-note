@@ -1,8 +1,8 @@
 { 
     "manifest_version": 3,
     "name": "O(note)",
-    "version": "3",
-    "description": "Take notes on DSA questions directly on leetcode",
+    "version": "5",
+    "description": "Take notes on DSA questions on LeetCode and Codeforces — markdown, labels, autosave, and JSON backup, with a searchable notes view.",
 
     "permissions": ["storage","webNavigation"],
     "host_permissions": ["https://leetcode.com/*","https://codeforces.com/*"],
@@ -47,5 +47,11 @@
     "action": {
         "default_popup": "src/popup/popup.html",
         "default_title": "O(note)"
+    },
+    
+    "icons": {
+        "16": "assets/icon-16.png",
+        "48": "assets/icon-48.png",
+        "128": "assets/icon-128.png"
     }
 }
