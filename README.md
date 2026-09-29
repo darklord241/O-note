@@ -26,7 +26,7 @@ Supports Markdown notes, labels, autosave, export/import, and browsing all saved
 ## Installing without building
 
 If you'd rather not build from source, download a pre-built zip from the
-(have to updates still so just use the dist directory uploaded) [Releases page](https://github.com/darklord241/O-note/releases):
+[Releases page](https://github.com/darklord241/O-note/releases):
 
 1. Download the zip for the version you want.
 2. Extract it:
