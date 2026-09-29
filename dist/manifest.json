@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "O(note)",
-  "version": "5",
+  "version": "5.1",
   "description": "O(note) helps users create, manage, search, and access personal notes associated with DSA problems on LeetCode and Codeforces.",
   "permissions": [
     "storage",
@@ -19,7 +19,7 @@
   "content_scripts": [
     {
       "js": [
-        "assets/content.js-loader-BZ97KauD.js"
+        "assets/content.js-loader-B78Wv5PH.js"
       ],
       "matches": [
         "https://leetcode.com/*",
@@ -38,7 +38,7 @@
         "src/content/panel.css",
         "assets/settings-DZkbCkLq.js",
         "assets/constants-A6yBVVTt.js",
-        "assets/content.js-Fng7lKr8.js"
+        "assets/content.js-Cs4w9K6Y.js"
       ],
       "use_dynamic_url": false
     }

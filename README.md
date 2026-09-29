@@ -77,7 +77,15 @@ label. Notes can also be sorted by when they were last updated.
 | `Alt + L` | Toggle the panel open/closed. Opening focuses the note and moves the cursor to the end of existing text (or the start, for a fresh question). |
 | `Alt + K` | Switch between edit mode (raw markdown) and preview mode (rendered). |
 
-Shortcuts can be changed at `chrome://extensions/shortcuts`.
+Chrome may not automatically assign these shortcuts when the extension is installed in a new browser profile.
+If a shortcut is not set:
+
+1. Open `chrome://extensions/shortcuts`
+2. Find **O(note)**
+3. Click the pencil icon next to the desired command
+4. Press the shortcut you want to assign
+
+The shortcuts can be changed or removed from Chrome's extension shortcut settings.
 
 ## Inspecting stored notes
 

@@ -1,7 +1,7 @@
 { 
     "manifest_version": 3,
     "name": "O(note)",
-    "version": "5",
+    "version": "5.1",
     "description": "O(note) helps users create, manage, search, and access personal notes associated with DSA problems on LeetCode and Codeforces.",
 
     "permissions": ["storage","webNavigation"],
